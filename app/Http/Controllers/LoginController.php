@@ -12,6 +12,10 @@ class LoginController extends Controller
 {
     public function main()
     {
+        if (Auth::check()) {
+            return redirect('/dashboard');
+        }
+
         return redirect('/login');
     }
 
@@ -44,5 +48,13 @@ class LoginController extends Controller
                 'error' => 'An error occurred during login. Please try again later.',
             ])->withInput();
         }
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     }
 }
