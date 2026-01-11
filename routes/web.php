@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'main']);
     Route::get('/logout', [LoginController::class, 'logout']);
+    Route::get('/siswa', function () {
+        return view('siswa.index');
+    });
 });
 
 Route::middleware(['guest'])->group(function () {

@@ -6,9 +6,9 @@
                             href="javascript:void(0)"></a>
                         <!-- sidebar-toggle-->
                         <a class="logo-horizontal " href="/">
-                            <img src="../assets/images/brand/logo-white.png" class="header-brand-img desktop-logo"
+                            <img src="../assets/images/brand/icon-white.png" class="header-brand-img desktop-logo"
                                 alt="logo">
-                            <img src="../assets/images/brand/logo-dark.png" class="header-brand-img light-logo1"
+                            <img src="../assets/images/brand/icon.png" class="header-brand-img light-logo1"
                                 alt="logo">
                         </a>
                         <!-- LOGO -->
@@ -46,7 +46,7 @@
                                             <a class="nav-link icon text-center" data-bs-target="#country-selector"
                                                 data-bs-toggle="modal">
                                                 <i class="fe fe-globe"></i><span
-                                                    class="fs-16 ms-2 d-none d-xl-block">English</span>
+                                                    class="fs-16 ms-2 d-none d-xl-block">Indonesia</span>
                                             </a>
                                         </div>
                                         <!-- COUNTRY -->
@@ -57,7 +57,7 @@
                                             </a>
                                         </div>
                                         <!-- Theme-Layout -->
-                                        <div class="dropdown  d-flex shopping-cart">
+                                        {{-- <div class="dropdown  d-flex shopping-cart">
                                             <a class="nav-link icon text-center" data-bs-toggle="dropdown">
                                                 <i class="fe fe-shopping-cart"></i><span
                                                     class="badge bg-secondary header-badge">4</span>
@@ -194,7 +194,7 @@
                                                     <span class="float-end p-2 fs-17 fw-semibold">Total: $6789</span>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <!-- CART -->
                                         <div class="dropdown d-flex">
                                             <a class="nav-link icon full-screen-link nav-link-bg">
