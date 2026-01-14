@@ -6,13 +6,13 @@
                 <h4 class="card-title">Daftar Kelas</h4>
             </div>
             <div class="card-body">
-                <form class="form-horizontal" name="formSiswa">
+                <form class="form-horizontal" name="formGuru">
                     <div class=" row mb-4">
                         <div class="form-row">
                             <div class="form-group col-md-9 mb-0">
                                 <div class="form-group">
-                                    <label class="form-label">Nama Siswa</label>
-                                    <input type="text" class="form-control" id="namaSiswa" placeholder="Nama Siswa">
+                                    <label class="form-label">Nama Guru</label>
+                                    <input type="text" class="form-control" id="namaGuru" placeholder="Nama Guru">
                                 </div>
                             </div>
                             <div class="form-group col-md-3 mb-0">
@@ -30,9 +30,8 @@
                         </div>
                         <div class="mb-0 mt-4 row">
                             <div class="col-md-9">
-                                <button class="btn btn-primary" id="simpanSiswa">Simpan</button>
-                                <button class="btn btn-secondary" style="display:none" id="updateSiswa">Update</button>
-
+                                <button class="btn btn-primary" id="simpanGuru">Simpan</button>
+                                <button class="btn btn-secondary" style="display:none" id="updateGuru">Update</button>
                             </div>
                         </div>
                 </form>
@@ -43,15 +42,15 @@
     <div class="col-md-12 col-xl-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Data Siswa</h3>
+                <h3 class="card-title">Data Guru</h3>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered text-nowrap border-bottom" id="dataTableSiswa">
+                    <table class="table table-bordered text-nowrap border-bottom" id="dataTableGuru">
                         <thead>
                             <tr>
                                 <th class="wd-15p border-bottom-0">No</th>
-                                <th class="wd-15p border-bottom-0">Nama Siswa</th>
+                                <th class="wd-15p border-bottom-0">Nama Guru</th>
                                 <th class="wd-15p border-bottom-0">Kelas</th>
                                 <th class="wd-15p border-bottom-0"><i class="fe fe-settings"></i></th>
                             </tr>
@@ -85,9 +84,10 @@
         $(document).ready(function() {
             // Table Data Kelas
             let id = null;
-            let table = $('#dataTableSiswa').DataTable({
+            let table = $('#dataTableGuru').DataTable({
+                processing: true,
                 ajax: {
-                    url: '/siswa/data' + (id ? '/' + id : ''),
+                    url: '/guru/data' + (id ? '/' + id : ''),
                     type: 'GET',
                     datasrc: function(json) {
                         let data = [];
@@ -104,8 +104,8 @@
                         name: 'no'
                     },
                     {
-                        data: 'nama_siswa',
-                        name: 'Nama Siswa'
+                        data: 'nama_guru',
+                        name: 'Nama Guru'
                     },
                     {
                         data: function(data) {
@@ -116,14 +116,15 @@
                     {
                         data: null,
                         render: function(data, type, row) {
-                            return `<button class="btn btn-sm btn-primary" id="editSiswa" data-id="${data.id}"><i class="fe fe-edit"></i></button>
-                                    <button class="btn btn-sm btn-danger" id="deleteSiswa" data-id="${data.id}"><i class="fe fe-trash"></i></button>`;
+                            return `<button class="btn btn-sm btn-primary" id="editGuru" data-id="${data.id}"><i class="fe fe-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" id="deleteGuru" data-id="${data.id}"><i class="fe fe-trash"></i></button>`;
                         },
                         orderable: false,
                         searchable: false
                     }
                 ]
             });
+
 
             function showModal(isSuccess, message, showButton = false) {
                 const modalIcon = $('#modalIcon');
@@ -134,80 +135,79 @@
                 $('#modaldemo4').modal('show');
             }
 
+            // on Edit Guru
+            $('#dataTableGuru').on('click', '#editGuru', function() {
+                let GuruId = $(this).data('id');
+                let nama = table.row($(this).parents('tr')).data().nama_guru
+                let idKelas = table.row($(this).parents('tr')).data().kelas_id
+                $('#namaGuru').val(nama);
+                $('#updateGuru').data('id', GuruId);
+                $('#updateGuru').fadeIn();
+                $('#simpanGuru').fadeOut();
+                $('#kelasSelect').val(idKelas).trigger('change');
+            });
 
-            // on Delete Siswa
-            $('#dataTableSiswa').on('click', '#deleteSiswa', function() {
-                let siswaId = $(this).data('id');
+            // on Update Guru
+            $('#updateGuru').on('click', function(event) {
+                event.preventDefault();
+                let guruId = $(this).data('id');
+                let namaGuru = $('#namaGuru').val();
+                let kelasId = $('#kelasSelect').val();
+
                 $.ajax({
-                    url: '/siswa/' + siswaId,
+                    url: '/guru/' + guruId,
+                    method: 'PUT',
+                    data: {
+                        nama_guru: namaGuru,
+                        kelas_id: kelasId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        table.ajax.reload();
+                        $('#namaGuru').val('');
+                        $('#kelasSelect').val(null).trigger('change');
+                        $('#updateGuru').fadeOut();
+                        $('#simpanGuru').fadeIn();
+                        showModal(true, 'Guru berhasil diperbarui.');
+                    },
+                    error: function(xhr) {
+                        showModal(false, 'Terjadi kesalahan saat memperbarui Guru.');
+                    }
+                });
+            });
+
+            // on Delete Guru
+            $('#dataTableGuru').on('click', '#deleteGuru', function() {
+                let GuruId = $(this).data('id');
+                $.ajax({
+                    url: '/guru/' + GuruId,
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
                         table.ajax.reload();
-                        showModal(true, 'Siswa berhasil dihapus.');
+                        showModal(true, 'Guru berhasil dihapus.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menghapus siswa.');
-                    }
-                });
-            });
-
-            // on Edit Siswa
-            $('#dataTableSiswa').on('click', '#editSiswa', function() {
-                let siswaId = $(this).data('id');
-                let nama = table.row($(this).parents('tr')).data().nama_siswa
-                let idKelas = table.row($(this).parents('tr')).data().kelas_id
-                $('#namaSiswa').val(nama);
-                $('#updateSiswa').data('id', siswaId);
-                $('#updateSiswa').fadeIn();
-                $('#simpanSiswa').fadeOut();
-                $('#kelasSelect').val(idKelas).trigger('change');
-            });
-
-            // on Update Siswa
-            $('#updateSiswa').on('click', function(event) {
-                event.preventDefault();
-                let siswaId = $(this).data('id');
-                let namaSiswa = $('#namaSiswa').val();
-                let kelasId = $('#kelasSelect').val();
-
-                $.ajax({
-                    url: '/siswa/' + siswaId,
-                    method: 'PUT',
-                    data: {
-                        nama_siswa: namaSiswa,
-                        kelas_id: kelasId
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        table.ajax.reload();
-                        $('#namaSiswa').val('');
-                        $('#kelasSelect').val(null).trigger('change');
-                        $('#updateSiswa').fadeOut();
-                        $('#simpanSiswa').fadeIn();
-                        showModal(true, 'Siswa berhasil diperbarui.');
-                    },
-                    error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat memperbarui siswa.');
+                        showModal(false, 'Terjadi kesalahan saat menghapus Guru.');
                     }
                 });
             });
 
             // on Save Kelas
-            $('#simpanSiswa').on('click', function(event) {
+            $('#simpanGuru').on('click', function(event) {
                 event.preventDefault();
-                let namaSiswa = $('#namaSiswa').val();
+                let namaGuru = $('#namaGuru').val();
                 let kelasId = $('#kelasSelect').val();
 
                 $.ajax({
-                    url: '/siswa',
+                    url: '/guru',
                     method: 'POST',
                     data: {
-                        nama_siswa: namaSiswa,
+                        nama_guru: namaGuru,
                         kelas_id: kelasId
                     },
                     headers: {
@@ -215,12 +215,12 @@
                     },
                     success: function(response) {
                         table.ajax.reload();
-                        $('#namaSiswa').val('');
+                        $('#namaGuru').val('');
                         $('#kelasSelect').val(null).trigger('change');
-                        showModal(true, 'Siswa berhasil disimpan.');
+                        showModal(true, 'Guru berhasil disimpan.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menyimpan siswa.');
+                        showModal(false, 'Terjadi kesalahan saat menyimpan guru.');
                     }
                 });
             });

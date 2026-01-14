@@ -1,4 +1,5 @@
 <?php
+
 return [
     [
         'name' => 'Main',
@@ -12,7 +13,7 @@ return [
         ]
     ],
     [
-        'name' => 'Akademik',
+        'name' => 'Master',
         'items' => [
             [
                 'name' => 'Siswa',
@@ -24,6 +25,50 @@ return [
                         'url' => '/siswa',
                     ]
                 ]
+            ],
+            [
+                'name' => 'Guru',
+                'url' => '',
+                'icon' => 'fe fe-user',
+                'submenu' => [
+                    [
+                        'name' => 'Data Guru',
+                        'url' => '/guru',
+                    ]
+                ]
+            ],
+            [
+                'name' => 'Kelas',
+                'url' => '',
+                'icon' => 'fe fe-layers',
+                'submenu' => [
+                    [
+                        'name' => 'Data Kelas',
+                        'url' => '/kelas',
+                    ]
+                ]
+            ]
+        ]
+    ],
+    [
+        'name' => 'Reports',
+        'items' => [
+            [
+                'name' => 'Nilai Siswa',
+                'url' => '',
+                'icon' => 'fe fe-bar-chart-2',
+                'submenu' => [
+                    [
+                        'name' => 'Data Nilai Siswa',
+                        'url' => '/nilai-siswa',
+                    ]
+                ]
+            ],
+            [
+                'name' => 'Laporan',
+                'url' => '/laporan',
+                'icon' => 'fe fe-file-text',
+                'submenu' => []
             ]
         ]
     ]

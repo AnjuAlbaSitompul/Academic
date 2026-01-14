@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('12345'),
             'email' => 'admin@gmail.com',
         ]);
+        $this->call(KelasSeeder::class);
     }
 }

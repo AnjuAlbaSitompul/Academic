@@ -1,5 +1,8 @@
 @extends('layouts.pages.app')
 
+@section('loader')
+    @include('partials.loader')
+@endsection
 @section('content')
     <!-- ROW-1 -->
     <div class="row">

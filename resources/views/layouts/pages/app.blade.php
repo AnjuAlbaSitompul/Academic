@@ -44,7 +44,7 @@
 
 <body class="app sidebar-mini ltr light-mode">
 
-    @include('partials.loader')
+    @yield('loader')
 
 
     <!-- PAGE -->
@@ -60,7 +60,7 @@
                 <div class="side-app">
 
                     <!-- CONTAINER -->
-                    <div class="main-container container-fluid">
+                    <div class="main-container container-fluid" id="contentLoad">
 
                         @include('partials.breadcrumb')
                         @yield('content')
@@ -73,7 +73,6 @@
 
         <!-- BACK-TO-TOP -->
         <a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
-
         <!-- JQUERY JS -->
         <script src="../assets/js/jquery.min.js"></script>
 
@@ -86,6 +85,7 @@
 
         <!-- Sticky js -->
         <script src="../assets/js/sticky.js"></script>
+        <script src="../assets/js/select2.js"></script>
 
         <!-- CHART-CIRCLE JS-->
         <script src="../assets/js/circle-progress.min.js"></script>
@@ -149,6 +149,27 @@
 
         <!-- Switcher js -->
         <script src="../assets/switcher/js/switcher.js"></script>
+
+        {{-- Data Tables --}}
+        <script src="../assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+        <script src="../assets/plugins/datatable/js/dataTables.bootstrap5.js"></script>
+        <script src="../assets/plugins/datatable/js/dataTables.buttons.min.js"></script>
+        <script src="../assets/plugins/datatable/js/buttons.bootstrap5.min.js"></script>
+        <script src="../assets/plugins/datatable/js/jszip.min.js"></script>
+        <script src="../assets/plugins/datatable/pdfmake/pdfmake.min.js"></script>
+        <script src="../assets/plugins/datatable/pdfmake/vfs_fonts.js"></script>
+        <script src="../assets/plugins/datatable/js/buttons.html5.min.js"></script>
+        <script src="../assets/plugins/datatable/js/buttons.print.min.js"></script>
+        <script src="../assets/plugins/datatable/js/buttons.colVis.min.js"></script>
+        <script src="../assets/plugins/datatable/dataTables.responsive.min.js"></script>
+        <script src="../assets/plugins/datatable/responsive.bootstrap5.min.js"></script>
+        <script src="../assets/js/table-data.js"></script>
+
+        {{-- form validation --}}
+        <script src="../assets/js/form-validation.js"></script>
+
+        <!-- INPUT MASK JS-->
+        <script src="../assets/plugins/input-mask/jquery.mask.min.js"></script>
 
 </body>
 
