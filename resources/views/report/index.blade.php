@@ -50,7 +50,6 @@
                                 <th>Kehadiran</th>
                                 <th>Keterlambatan</th>
                                 <th>Prestasi</th>
-                                <th class="wd-15p border-bottom-0"><i class="fe fe-settings"></i></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -119,7 +118,7 @@
                     },
                     {
                         data: 'prestasi'
-                    },
+                    }
                 ],
             })
             tableNilai.DataTable({

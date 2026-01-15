@@ -31,6 +31,9 @@ Route::middleware(['auth', 'role:guru,admin'])->group(function () {
     Route::delete('/nilai-siswa/{id}', [NilaiController::class, 'destroy']);
 
 
+
+    // report Routes
+    Route::get('/laporan', [ReportController::class, 'index']);
     Route::get('/laporan/siswa', function () {
         return Excel::download(new SiswaExport, 'data-siswa.xlsx');
     })->name('siswa.export');
@@ -68,10 +71,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/method', [MethodController::class, 'store']);
     Route::put('/method/{id}', [MethodController::class, 'update']);
     Route::delete('/method/{id}', [MethodController::class, 'destroy']);
-
-
-    // report Routes
-    Route::get('/laporan', [ReportController::class, 'index']);
 });
 
 Route::middleware(['guest'])->group(function () {
