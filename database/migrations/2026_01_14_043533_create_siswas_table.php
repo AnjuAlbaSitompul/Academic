@@ -17,7 +17,9 @@ return new class extends Migration
             $table->foreignId('kelas_id')
                 ->constrained('kelas')
                 ->onDelete('cascade');
-            $table->timestamps();
+
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
     }
 

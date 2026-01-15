@@ -150,6 +150,8 @@
         <!-- Switcher js -->
         <script src="../assets/switcher/js/switcher.js"></script>
 
+        {{-- sweet alert --}}
+        <script src="../assets/plugins/sweet-alert/sweetalert.min.js"></script>
         {{-- Data Tables --}}
         <script src="../assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
         <script src="../assets/plugins/datatable/js/dataTables.bootstrap5.js"></script>

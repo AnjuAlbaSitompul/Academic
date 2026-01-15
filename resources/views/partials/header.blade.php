@@ -196,13 +196,13 @@
                                             </div>
                                         </div> --}}
                                         <!-- CART -->
-                                        <div class="dropdown d-flex">
+                                        {{-- <div class="dropdown d-flex">
                                             <a class="nav-link icon full-screen-link nav-link-bg">
                                                 <i class="fe fe-minimize fullscreen-button"></i>
                                             </a>
-                                        </div>
+                                        </div> --}}
                                         <!-- FULL-SCREEN -->
-                                        <div class="dropdown  d-flex notifications">
+                                        {{-- <div class="dropdown  d-flex notifications">
                                             <a class="nav-link icon" data-bs-toggle="dropdown"><i
                                                     class="fe fe-bell"></i><span class=" pulse"></span>
                                             </a>
@@ -263,9 +263,9 @@
                                                     class="dropdown-item text-center p-3 text-muted">View all
                                                     Notification</a>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <!-- NOTIFICATIONS -->
-                                        <div class="dropdown  d-flex message">
+                                        {{-- <div class="dropdown  d-flex message">
                                             <a class="nav-link icon text-center" data-bs-toggle="dropdown">
                                                 <i class="fe fe-message-square"></i><span class="pulse-danger"></span>
                                             </a>
@@ -358,14 +358,14 @@
                                                     class="dropdown-item text-center p-3 text-muted">See all
                                                     Messages</a>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <!-- MESSAGE-BOX -->
-                                        <div class="dropdown d-flex header-settings">
+                                        {{-- <div class="dropdown d-flex header-settings">
                                             <a href="javascript:void(0);" class="nav-link icon"
                                                 data-bs-toggle="sidebar-right" data-target=".sidebar-right">
                                                 <i class="fe fe-align-right"></i>
                                             </a>
-                                        </div>
+                                        </div> --}}
                                         <!-- SIDE-MENU -->
                                         <div class="dropdown d-flex profile-1">
                                             <a href="javascript:void(0)" data-bs-toggle="dropdown"
@@ -376,21 +376,12 @@
                                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                                                 <div class="drop-heading">
                                                     <div class="text-center">
-                                                        <h5 class="text-dark mb-0 fs-14 fw-semibold">Percy Kewshun</h5>
-                                                        <small class="text-muted">Senior Admin</small>
+                                                        <h5 class="text-dark mb-0 fs-14 fw-semibold">
+                                                            {{ $authUser->name }}</h5>
+                                                        <small class="text-muted">{{ $authUser->role }}</small>
                                                     </div>
                                                 </div>
                                                 <div class="dropdown-divider m-0"></div>
-                                                <a class="dropdown-item" href="profile.html">
-                                                    <i class="dropdown-icon fe fe-user"></i> Profile
-                                                </a>
-                                                <a class="dropdown-item" href="email-inbox.html">
-                                                    <i class="dropdown-icon fe fe-mail"></i> Inbox
-                                                    <span class="badge bg-danger rounded-pill float-end">5</span>
-                                                </a>
-                                                <a class="dropdown-item" href="lockscreen.html">
-                                                    <i class="dropdown-icon fe fe-lock"></i> Lockscreen
-                                                </a>
                                                 <a class="dropdown-item" href="/" id="signOut">
                                                     <i class="dropdown-icon fe fe-alert-circle"></i> Sign out
                                                 </a>

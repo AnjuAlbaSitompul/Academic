@@ -63,7 +63,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response)
+                    window.location.href = '/dashboard';
                 },
                 error: function(xhr) {
                     alert('Login failed: ' + xhr.responseJSON.message);

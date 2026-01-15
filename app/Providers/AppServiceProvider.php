@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('*', function ($view) {
+            $view->with('authUser', Auth::user());
+        });
+
+        View::composer('*', function ($view) {
+
+            $role = Auth()->check() ? auth()->user()->role : null;
+
+            $sidebar = match ($role) {
+                'admin' => config('sidebar_admin'),
+                'guru'  => config('sidebar_guru'),
+                default => [],
+            };
+
+            $view->with('sidebar', $sidebar);
+        });
     }
 }

@@ -27,9 +27,11 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">Data Nilai</h4>
-                    <button class="btn btn-success btn-sm" id="btnUpload">
-                        Upload CSV
-                    </button>
+                    @if ($authUser && $authUser->role === 'admin')
+                        <button class="btn btn-sm btn-success" id="btnUpload">
+                            Upload CSV Nilai
+                        </button>
+                    @endif
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

@@ -21,6 +21,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'password' => bcrypt('12345'),
             'email' => 'admin@gmail.com',
+            'role' => 'admin',
+        ]);
+        User::factory()->create([
+            'name' => 'Guru',
+            'password' => bcrypt('12345'),
+            'email' => 'guru@gmail.com',
+            'role' => 'guru',
         ]);
         $this->call(KelasSeeder::class);
     }

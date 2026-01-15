@@ -14,7 +14,13 @@ class KelasSeeder extends Seeder
     public function run(): void
     {
         Kelas::create([
-            'nama_kelas' => 'X RPL 1',
+            'nama_kelas' => 'X',
+        ]);
+        Kelas::create([
+            'nama_kelas' => 'XI',
+        ]);
+        Kelas::create([
+            'nama_kelas' => 'XII',
         ]);
     }
 }
