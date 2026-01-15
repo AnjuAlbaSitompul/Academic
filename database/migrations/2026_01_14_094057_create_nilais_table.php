@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('nilais', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // auto increment
+            $table->string('nama');
+            $table->integer('nilai_uas');
+            $table->integer('nilai_uts');
+            $table->integer('nilai_un');
+            $table->integer('kehadiran');
+            $table->integer('keterlambatan');
+            $table->enum('prestasi', ['YA', 'TIDAK']);
             $table->timestamps();
         });
     }

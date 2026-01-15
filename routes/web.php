@@ -39,7 +39,11 @@ Route::middleware(['auth'])->group(function () {
 
 
     // nilai-siswa routes
+    Route::post('/nilai-siswa/upload', [NilaiController::class, 'upload']);
     Route::get('/nilai-siswa', [NilaiController::class, 'index']);
+    Route::post('/nilai-siswa', [NilaiController::class, 'store']);
+    Route::put('/nilai-siswa/{id}', [NilaiController::class, 'update']);
+    Route::delete('/nilai-siswa/{id}', [NilaiController::class, 'destroy']);
 });
 
 Route::middleware(['guest'])->group(function () {
