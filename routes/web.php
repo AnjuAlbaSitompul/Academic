@@ -6,8 +6,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\EvaluasiController;
 use App\Http\Controllers\MethodController;
 use App\Http\Controllers\NilaiController;
+use App\Http\Controllers\NilaiNonAkademikController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,15 @@ Route::middleware(['auth', 'role:guru,admin'])->group(function () {
     Route::post('/nilai-siswa', [NilaiController::class, 'store']);
     Route::put('/nilai-siswa/{id}', [NilaiController::class, 'update']);
     Route::delete('/nilai-siswa/{id}', [NilaiController::class, 'destroy']);
+
+    // nilai-non-akademik routes
+    Route::get('/nilai-non-akademik', [NilaiNonAkademikController::class, 'index']);
+    Route::post('/nilai-non-akademik', [NilaiNonAkademikController::class, 'store']);
+    Route::put('/nilai-non-akademik/{id}', [NilaiNonAkademikController::class, 'update']);
+    Route::delete('/nilai-non-akademik/{id}', [NilaiNonAkademikController::class, 'destroy']);
+
+    // evaluasi model (K-Fold Decision Tree)
+    Route::get('/evaluasi', [EvaluasiController::class, 'index']);
 
 
 

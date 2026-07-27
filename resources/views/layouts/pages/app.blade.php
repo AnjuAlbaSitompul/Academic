@@ -118,6 +118,12 @@
         <script src="../assets/js/apexcharts.js"></script>
         <script src="../assets/plugins/apexchart/irregular-data-series.js"></script>
 
+        <!-- INTERNAL ECHARTS JS (visualisasi decision tree & confusion matrix) -->
+        <script src="../assets/plugins/echarts/echarts.js"></script>
+
+        <!-- DECISION TREE C4.5 + K-FOLD CROSS VALIDATION -->
+        <script src="../assets/js/decision-tree.js"></script>
+
         <!-- INTERNAL Flot JS -->
         <script src="../assets/plugins/flot/jquery.flot.js"></script>
         <script src="../assets/plugins/flot/jquery.flot.fillbetween.js"></script>

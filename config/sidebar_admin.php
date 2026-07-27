@@ -61,8 +61,18 @@ return [
                     [
                         'name' => 'Data Nilai Siswa',
                         'url' => '/nilai-siswa',
+                    ],
+                    [
+                        'name' => 'Data Non-Akademik',
+                        'url' => '/nilai-non-akademik',
                     ]
                 ]
+            ],
+            [
+                'name' => 'Evaluasi Model',
+                'url' => '/evaluasi',
+                'icon' => 'fe fe-activity',
+                'submenu' => []
             ],
             [
                 'name' => 'Laporan',
