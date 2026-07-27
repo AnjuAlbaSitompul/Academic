@@ -7,8 +7,9 @@
  * point optimal) dengan validasi 10-Fold Cross Validation sekuensial
  * (7 fold x 59 + 3 fold x 58 = 587 catatan).
  *
- * Metrik evaluasi (Tabel 4.5/4.6 akademik & Tabel 4.12/4.13 non-akademik)
- * merupakan data hasil penelitian yang terdokumentasi pada Bab IV skripsi.
+ * Seluruh metrik evaluasi (accuracy, precision, recall, F1-score, serta
+ * confusion matrix) DIHITUNG LANGSUNG dari data di basis data pada setiap
+ * fold — tanpa nilai yang di-hardcode.
  * ========================================================================= */
 
 (function (global) {
@@ -34,8 +35,12 @@
         return e;
     }
 
-    /* ----- Split numerik: cari titik tengah optimal (midpoint) ----- */
-    function bestNumericSplit(rows, attr) {
+    /* ----- Split numerik: cari titik tengah optimal (midpoint) -----
+     * Kandidat pemisahan ditolak bila salah satu cabang berisi kurang dari
+     * minLeaf data (pre-pruning: minimum samples per leaf).
+     */
+    function bestNumericSplit(rows, attr, minLeaf) {
+        minLeaf = minLeaf || 1;
         const vals = Array.from(new Set(rows.map(function (r) {
             return Number(r[attr]);
         }))).sort(function (a, b) {
@@ -53,7 +58,7 @@
             const right = rows.filter(function (r) {
                 return Number(r[attr]) > mid;
             });
-            if (left.length === 0 || right.length === 0) continue;
+            if (left.length < minLeaf || right.length < minLeaf) continue;
             const info = (left.length / rows.length) * entropy(left) +
                 (right.length / rows.length) * entropy(right);
             const gain = baseEntropy - info;
@@ -96,7 +101,7 @@
         config.attributes.forEach(function (attr) {
             let r;
             if (config.numeric.indexOf(attr) !== -1) {
-                r = bestNumericSplit(rows, attr);
+                r = bestNumericSplit(rows, attr, config.minSamplesLeaf || 1);
                 results.push({
                     attr: attr,
                     split: r.split !== null ? ('≤ ' + r.split) : '-',
@@ -153,7 +158,7 @@
         attributes.forEach(function (attr) {
             let r;
             if (config.numeric.indexOf(attr) !== -1) {
-                r = bestNumericSplit(rows, attr);
+                r = bestNumericSplit(rows, attr, config.minSamplesLeaf || 1);
                 if (r.split !== null && (!best || r.gain > best.gain)) {
                     best = {
                         attr: attr,
@@ -316,8 +321,10 @@
             FP += fp;
             FN += fn;
             const acc = (tp + tn) / test.length;
-            const prec = tp + fp > 0 ? tp / (tp + fp) : 1;
-            const rec = tp + fn > 0 ? tp / (tp + fn) : 1;
+            // Metrik yang tidak terdefinisi (pembagi 0) dianggap 0,
+            // sesuai konvensi umum (zero_division = 0) — bukan dipaksakan 1.
+            const prec = tp + fp > 0 ? tp / (tp + fp) : 0;
+            const rec = tp + fn > 0 ? tp / (tp + fn) : 0;
             const f1 = prec + rec > 0 ? 2 * prec * rec / (prec + rec) : 0;
             perFold.push({
                 fold: i + 1,
@@ -363,88 +370,41 @@
         };
     }
 
-    /* ----- Konfigurasi atribut tiap dataset (sesuai Bab IV) ----- */
+    /* ----- Konfigurasi atribut tiap dataset (sesuai Bab IV) -----
+     * minSamplesLeaf: jumlah minimum data pada setiap daun hasil pemisahan
+     * (pre-pruning) — kondisi berhenti "jumlah data mencapai batas minimum
+     * yang telah ditentukan" sebagaimana dijelaskan pada Bab IV.
+     */
     const CONFIG = {
         akademik: {
             attributes: ['nilai_uas', 'nilai_uts', 'nilai_un', 'kehadiran', 'keterlambatan'],
             numeric: ['nilai_uas', 'nilai_uts', 'nilai_un', 'kehadiran', 'keterlambatan'],
-            labelField: 'prestasi'
+            labelField: 'prestasi',
+            minSamplesLeaf: 15
         },
         nonAkademik: {
             attributes: ['jumlah_ekstrakurikuler', 'jenis_kegiatan', 'tingkat_perlombaan',
                 'perlombaan_diikuti', 'kehadiran_ekstrakurikuler'
             ],
             numeric: ['jumlah_ekstrakurikuler', 'perlombaan_diikuti', 'kehadiran_ekstrakurikuler'],
-            labelField: 'prestasi'
+            labelField: 'prestasi',
+            minSamplesLeaf: 15
         }
     };
 
-    /* ----- Data hasil evaluasi terdokumentasi pada Bab IV skripsi -----
-     * Akademik (Tabel 4.5/4.6): 100% pada seluruh fold.
-     * Non-akademik (Tabel 4.12/4.13): FP=3 (fold 2,5,7), FN=1 (fold 10).
-     * Angka ini merupakan hasil penelitian yang dicatat pada Bab IV.
-     */
-    const BAB4_RESULTS = {
-        akademik: {
-            perFold: [
-                {fold:1,test:59,TP:9,TN:50,FP:0,FN:0},
-                {fold:2,test:59,TP:3,TN:56,FP:0,FN:0},
-                {fold:3,test:59,TP:2,TN:57,FP:0,FN:0},
-                {fold:4,test:59,TP:3,TN:56,FP:0,FN:0},
-                {fold:5,test:59,TP:5,TN:54,FP:0,FN:0},
-                {fold:6,test:59,TP:2,TN:57,FP:0,FN:0},
-                {fold:7,test:59,TP:3,TN:56,FP:0,FN:0},
-                {fold:8,test:58,TP:4,TN:54,FP:0,FN:0},
-                {fold:9,test:58,TP:6,TN:52,FP:0,FN:0},
-                {fold:10,test:58,TP:10,TN:48,FP:0,FN:0}
-            ],
-            confusion: {TP:47,TN:540,FP:0,FN:0}
-        },
-        nonAkademik: {
-            perFold: [
-                {fold:1,test:59,TP:3,TN:56,FP:0,FN:0},
-                {fold:2,test:59,TP:6,TN:52,FP:1,FN:0},
-                {fold:3,test:59,TP:5,TN:54,FP:0,FN:0},
-                {fold:4,test:59,TP:4,TN:55,FP:0,FN:0},
-                {fold:5,test:59,TP:2,TN:56,FP:1,FN:0},
-                {fold:6,test:59,TP:7,TN:52,FP:0,FN:0},
-                {fold:7,test:59,TP:4,TN:54,FP:1,FN:0},
-                {fold:8,test:58,TP:7,TN:51,FP:0,FN:0},
-                {fold:9,test:58,TP:6,TN:52,FP:0,FN:0},
-                {fold:10,test:58,TP:2,TN:55,FP:0,FN:1}
-            ],
-            confusion: {TP:46,TN:537,FP:3,FN:1}
-        }
+    /* ----- Label tampilan untuk nama atribut ----- */
+    const ATTR_LABELS = {
+        nilai_uas: 'Nilai UAS',
+        nilai_uts: 'Nilai UTS',
+        nilai_un: 'Nilai UN',
+        kehadiran: 'Kehadiran',
+        keterlambatan: 'Keterlambatan',
+        jumlah_ekstrakurikuler: 'Jumlah Ekstrakurikuler',
+        jenis_kegiatan: 'Jenis Kegiatan',
+        tingkat_perlombaan: 'Tingkat Perlombaan',
+        perlombaan_diikuti: 'Perlombaan Diikuti',
+        kehadiran_ekstrakurikuler: 'Kehadiran Ekstrakurikuler'
     };
-
-    /* ----- Lengkapi metrik (acc/prec/rec/f1) per fold + rata-rata ----- */
-    function withMetrics(perFold) {
-        let accS=0,precS=0,recS=0,f1S=0;
-        const out = perFold.map(function (f) {
-            const acc = (f.TP + f.TN) / f.test;
-            const prec = f.TP + f.FP > 0 ? f.TP / (f.TP + f.FP) : 1;
-            const rec = f.TP + f.FN > 0 ? f.TP / (f.TP + f.FN) : 1;
-            const f1 = prec + rec > 0 ? 2 * prec * rec / (prec + rec) : 0;
-            accS+=acc;precS+=prec;recS+=rec;f1S+=f1;
-            return Object.assign({}, f, {
-                accuracy: acc, precision: prec, recall: rec, f1: f1
-            });
-        });
-        const n = out.length;
-        return {
-            perFold: out,
-            avg: {accuracy:accS/n, precision:precS/n, recall:recS/n, f1:f1S/n}
-        };
-    }
-
-    /* ----- Metrik dari confusion matrix akumulasi ----- */
-    function metricsFromCM(cm) {
-        const acc = (cm.TP + cm.TN) / (cm.TP + cm.TN + cm.FP + cm.FN);
-        const prec = cm.TP + cm.FP > 0 ? cm.TP / (cm.TP + cm.FP) : 1;
-        const rec = cm.TP + cm.FN > 0 ? cm.TP / (cm.TP + cm.FN) : 1;
-        const f1 = prec + rec > 0 ? 2 * prec * rec / (prec + rec) : 0;
-        return {accuracy:acc, precision:prec, recall:rec, f1:f1};
-    }
 
     global.DecisionTree = {
         entropy: entropy,
@@ -456,8 +416,6 @@
         dataSplitting: dataSplitting,
         foldSizes: foldSizes,
         CONFIG: CONFIG,
-        BAB4_RESULTS: BAB4_RESULTS,
-        withMetrics: withMetrics,
-        metricsFromCM: metricsFromCM
+        ATTR_LABELS: ATTR_LABELS
     };
 })(window);

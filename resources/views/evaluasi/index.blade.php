@@ -544,6 +544,18 @@
             const fmt = (v, d = 4) => (v * 100).toFixed(2) + '%';
             const fmt4 = (v) => v.toFixed(4);
             const pct = (v) => (v * 100).toFixed(2) + '%';
+            const ATTR = DecisionTree.ATTR_LABELS;
+
+            /* Semua instance echarts — agar bisa di-resize ulang saat
+               berpindah tab (tab tersembunyi membuat ukuran awal chart 0). */
+            const charts = [];
+
+            function resizeAllCharts() {
+                charts.forEach(function(c) {
+                    c.resize();
+                });
+            }
+            window.addEventListener('resize', resizeAllCharts);
 
             /* ----- Render ringkasan metrik ----- */
             function renderMetrics(prefix, avg, cm) {
@@ -555,21 +567,9 @@
 
             /* ----- Render tabel info gain ----- */
             function renderInfoGain(tableId, infoData) {
-                const labels = {
-                    nilai_uas: 'Nilai UAS',
-                    nilai_uts: 'Nilai UTS',
-                    nilai_un: 'Nilai UN',
-                    kehadiran: 'Kehadiran',
-                    keterlambatan: 'Keterlambatan',
-                    jumlah_ekstrakurikuler: 'Jumlah Ekstrakurikuler',
-                    jenis_kegiatan: 'Jenis Kegiatan',
-                    tingkat_perlombaan: 'Tingkat Perlombaan',
-                    perlombaan_diikuti: 'Perlombaan Diikuti',
-                    kehadiran_ekstrakurikuler: 'Kehadiran Ekstrakurikuler'
-                };
                 let html = '';
                 infoData.gains.forEach(function(g, i) {
-                    html += '<tr><td>' + (i + 1) + '</td><td>' + (labels[g.attr] || g.attr) + '</td>' +
+                    html += '<tr><td>' + (i + 1) + '</td><td>' + (ATTR[g.attr] || g.attr) + '</td>' +
                         '<td>' + g.split + '</td><td>' + fmt4(g.info) + '</td><td>' + fmt4(g.gain) +
                         '</td></tr>';
                 });
@@ -578,9 +578,18 @@
 
             /* ----- Render tabel aturan if-then ----- */
             function renderRules(tableId, rules) {
+                // ganti nama atribut mentah (mis. nilai_uas) dengan label tampilan
+                const pretty = function(cond) {
+                    return cond.map(function(c) {
+                        const sp = c.indexOf(' ');
+                        const attr = sp === -1 ? c : c.substring(0, sp);
+                        const rest = sp === -1 ? '' : c.substring(sp);
+                        return (ATTR[attr] || attr) + rest;
+                    });
+                };
                 let html = '';
                 rules.forEach(function(r, i) {
-                    html += '<tr><td>' + (i + 1) + '</td><td>Jika ' + r.cond.join(' dan ') +
+                    html += '<tr><td>' + (i + 1) + '</td><td>Jika ' + pretty(r.cond).join(' dan ') +
                         ', maka ' + r.label + '</td><td>' + r.count + '</td>' +
                         '<td><span class="badge ' + (r.label === 'YA' ? 'bg-success' : 'bg-danger') + '">' +
                         r.label + '</span></td></tr>';
@@ -645,6 +654,7 @@
                 echarts.dispose(el);
 
                 const chart = echarts.init(el);
+                charts.push(chart);
 
                 chart.setOption({
                     tooltip: {
@@ -704,15 +714,13 @@
 
                 // Resize setelah layout selesai
                 requestAnimationFrame(() => chart.resize());
-
-                // Auto resize saat ukuran window berubah
-                window.addEventListener('resize', () => chart.resize());
             }
 
             /* ----- Render pohon keputusan (echarts tree graph) ----- */
             function renderTree(divId, tree) {
-                function toEcharts(node, depth) {
-                    depth = depth || 0;
+                // node: tampilkan nama atribut / label kelas
+                // cabang: tampilkan kondisi pemisahan di atas nama node anak
+                function toEcharts(node) {
                     if (node.type === 'leaf') {
                         return {
                             name: node.label + '\n(' + node.count + ' data)',
@@ -720,54 +728,36 @@
                                 color: node.label === 'YA' ? '#28a745' : '#dc3545'
                             },
                             label: {
-                                color: '#fff',
+                                color: '#212529',
                                 fontWeight: 'bold'
                             }
                         };
                     }
-                    const labelAttr = {
-                        nilai_uas: 'Nilai UAS',
-                        nilai_uts: 'Nilai UTS',
-                        nilai_un: 'Nilai UN',
-                        kehadiran: 'Kehadiran',
-                        keterlambatan: 'Keterlambatan',
-                        jumlah_ekstrakurikuler: 'Jumlah Ekskul',
-                        jenis_kegiatan: 'Jenis Kegiatan',
-                        tingkat_perlombaan: 'Tingkat',
-                        perlombaan_diikuti: 'Perlombaan',
-                        kehadiran_ekstrakurikuler: 'Kehadiran EK'
-                    };
-                    const nama = labelAttr[node.attr] || node.attr;
+                    const nama = ATTR[node.attr] || node.attr;
                     const children = [];
                     if (node.kind === 'numeric') {
-                        const l = toEcharts(node.left, depth + 1);
-                        l.name = '≤ ' + node.split;
-                        const r = toEcharts(node.right, depth + 1);
-                        r.name = '> ' + node.split;
+                        const l = toEcharts(node.left);
+                        l.name = '≤ ' + node.split + '\n' + l.name;
+                        const r = toEcharts(node.right);
+                        r.name = '> ' + node.split + '\n' + r.name;
                         children.push(l, r);
-                        return {
-                            name: nama,
-                            children: children,
-                            itemStyle: {
-                                color: '#1565c0'
-                            }
-                        };
                     } else {
                         Object.keys(node.branches).forEach(function(cat) {
-                            const c = toEcharts(node.branches[cat], depth + 1);
-                            c.name = '= ' + cat;
+                            const c = toEcharts(node.branches[cat]);
+                            c.name = '= ' + cat + '\n' + c.name;
                             children.push(c);
                         });
-                        return {
-                            name: nama,
-                            children: children,
-                            itemStyle: {
-                                color: '#1565c0'
-                            }
-                        };
                     }
+                    return {
+                        name: nama,
+                        children: children,
+                        itemStyle: {
+                            color: '#1565c0'
+                        }
+                    };
                 }
                 const chart = echarts.init(document.getElementById(divId));
+                charts.push(chart);
                 chart.setOption({
                     tooltip: {
                         trigger: 'item',
@@ -777,28 +767,30 @@
                         type: 'tree',
                         data: [toEcharts(tree)],
                         top: '4%',
-                        left: '8%',
+                        left: '12%',
                         bottom: '4%',
-                        right: '12%',
+                        right: '16%',
                         symbolSize: 12,
                         orient: 'LR',
                         label: {
                             position: 'left',
                             verticalAlign: 'middle',
                             align: 'right',
-                            fontSize: 12
+                            fontSize: 12,
+                            distance: 6
                         },
                         leaves: {
                             label: {
                                 position: 'right',
                                 verticalAlign: 'middle',
-                                align: 'left'
+                                align: 'left',
+                                distance: 6
                             }
                         },
                         emphasis: {
                             focus: 'descendant'
                         },
-                        expandAndCollapse: true,
+                        expandAndCollapse: false,
                         animationDuration: 550,
                         lineStyle: {
                             color: '#90a4ae',
@@ -836,7 +828,7 @@
             }
 
             /* ----- Proses satu model secara lengkap ----- */
-            function processModel(prefix, data, config, bab4Result, isAkademik) {
+            function processModel(prefix, data, config, isAkademik) {
                 // pohon keputusan dari seluruh data (Tabel 4.4 / 4.11)
                 const tree = DecisionTree.buildTree(data, config.attributes, config);
                 const rules = DecisionTree.treeToRules(tree);
@@ -847,15 +839,17 @@
                 // distribusi data latih/uji (Tabel 4.7)
                 const splits = DecisionTree.dataSplitting(data.length, 10);
 
-                // hasil evaluasi (Tabel 4.5/4.6 atau 4.12/4.13) — data Bab IV
-                const metrics = DecisionTree.withMetrics(bab4Result.perFold);
-                const cm = bab4Result.confusion;
+                // hasil evaluasi DIHITUNG dari data aktual dengan 10-Fold
+                // Cross Validation (Tabel 4.5/4.6 atau 4.12/4.13) — apa adanya,
+                // tanpa nilai yang di-hardcode.
+                const result = DecisionTree.kFoldCrossValidation(data, config, 10);
+                const cm = result.confusion;
 
-                renderMetrics(prefix, metrics.avg, cm);
+                renderMetrics(prefix, result.avg, cm);
                 renderInfoGain(prefix + '-infoGain', info);
                 renderRules(prefix + '-rules', rules);
                 renderSplit(prefix + '-split', splits);
-                renderPerFold(prefix + '-perFold', metrics.perFold, metrics.avg);
+                renderPerFold(prefix + '-perFold', result.perFold, result.avg);
                 renderCMTable(prefix + '-cm-table', cm);
                 renderPredict(prefix + '-predict', data, tree, isAkademik);
 
@@ -891,15 +885,14 @@
                     };
                 });
 
-                processModel('aka', akademik, DecisionTree.CONFIG.akademik,
-                    DecisionTree.BAB4_RESULTS.akademik, true);
-                processModel('non', nonAkademik, DecisionTree.CONFIG.nonAkademik,
-                    DecisionTree.BAB4_RESULTS.nonAkademik, false);
+                processModel('aka', akademik, DecisionTree.CONFIG.akademik, true);
+                processModel('non', nonAkademik, DecisionTree.CONFIG.nonAkademik, false);
             });
 
-            // resize chart saat beralih tab
+            // resize chart saat beralih tab (chart pada tab tersembunyi
+            // ter-init dengan ukuran 0 sehingga perlu di-resize ulang)
             $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function() {
-                window.dispatchEvent(new Event('resize'));
+                resizeAllCharts();
             });
         });
     </script>
