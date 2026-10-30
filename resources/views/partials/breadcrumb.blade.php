@@ -1,4 +1,4 @@
-<div class="page-header">
+<div class="page-header notranslate">
     <h1 class="page-title">
         {{ ucwords(str_replace('-', ' ', request()->segment(1) ?? 'Home')) }}
     </h1>

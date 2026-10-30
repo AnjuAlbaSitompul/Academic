@@ -31,14 +31,14 @@
                                         <li class="slide">
                                             <a class="side-menu__item" href="{{ url($item['url']) }}">
                                                 <i class="side-menu__icon {{ $item['icon'] }}"></i>
-                                                <span class="side-menu__label">{{ $item['name'] }}</span>
+                                                <span class="side-menu__label notranslate">{{ $item['name'] }}</span>
                                             </a>
                                         </li>
                                     @else
                                         <li class="slide">
                                             <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0)">
                                                 <i class="side-menu__icon {{ $item['icon'] }}"></i>
-                                                <span class="side-menu__label">{{ $item['name'] }}</span>
+                                                <span class="side-menu__label notranslate">{{ $item['name'] }}</span>
                                                 <i class="angle fe fe-chevron-right"></i>
                                             </a>
 
