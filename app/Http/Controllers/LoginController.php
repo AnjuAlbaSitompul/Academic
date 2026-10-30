@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Stmt\TryCatch;
 
 class LoginController extends Controller
 {
@@ -28,6 +27,13 @@ class LoginController extends Controller
             ]);
 
             if ($validator->fails()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Validasi gagal.',
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
+
                 return redirect('/login')
                     ->withErrors($validator)
                     ->withInput();
@@ -37,13 +43,33 @@ class LoginController extends Controller
 
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Login berhasil.',
+                        'redirect' => '/dashboard',
+                    ]);
+                }
+
                 return redirect()->intended('/dashboard');
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Email atau password salah.',
+                ], 401);
             }
 
             return redirect('/login')->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ])->withInput();
         } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Terjadi kesalahan saat login. Silakan coba lagi.',
+                ], 500);
+            }
+
             return redirect('/login')->withErrors([
                 'error' => 'An error occurred during login. Please try again later.',
             ])->withInput();

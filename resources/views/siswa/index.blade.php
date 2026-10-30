@@ -3,7 +3,7 @@
     <div class="col-md-12 col-xl-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Daftar Kelas</h4>
+                <h4 class="card-title">Daftar Siswa</h4>
             </div>
             <div class="card-body">
                 <form class="form-horizontal" name="formSiswa">
@@ -89,7 +89,10 @@
                 ajax: {
                     url: '/siswa/data' + (id ? '/' + id : ''),
                     type: 'GET',
-                    datasrc: function(json) {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    dataSrc: function(json) {
                         let data = [];
                         if (json.status === 'success') {
                             data = json.data;
@@ -142,14 +145,15 @@
                     url: '/siswa/' + siswaId,
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
                         showModal(true, 'Siswa berhasil dihapus.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menghapus siswa.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menghapus siswa.');
                     }
                 });
             });
@@ -157,8 +161,13 @@
             // on Edit Siswa
             $('#dataTableSiswa').on('click', '#editSiswa', function() {
                 let siswaId = $(this).data('id');
-                let nama = table.row($(this).parents('tr')).data().nama_siswa
-                let idKelas = table.row($(this).parents('tr')).data().kelas_id
+                let rowData = table.row($(this).parents('tr')).data();
+                if (!rowData) {
+                    showModal(false, 'Data siswa tidak ditemukan.');
+                    return;
+                }
+                let nama = rowData.nama_siswa
+                let idKelas = rowData.kelas_id
                 $('#namaSiswa').val(nama);
                 $('#updateSiswa').data('id', siswaId);
                 $('#updateSiswa').fadeIn();
@@ -181,7 +190,8 @@
                         kelas_id: kelasId
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -192,7 +202,7 @@
                         showModal(true, 'Siswa berhasil diperbarui.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat memperbarui siswa.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat memperbarui siswa.');
                     }
                 });
             });
@@ -211,7 +221,8 @@
                         kelas_id: kelasId
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -220,7 +231,7 @@
                         showModal(true, 'Siswa berhasil disimpan.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menyimpan siswa.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menyimpan siswa.');
                     }
                 });
             });

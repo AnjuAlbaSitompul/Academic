@@ -192,11 +192,17 @@
                 }, function() {
                     $('#modalNonAkademik').modal('hide');
                     table.ajax.reload();
+                }).fail(function(xhr) {
+                    alert(xhr.responseJSON?.message ?? 'Gagal menyimpan data');
                 });
             });
 
             $('#dataTableNonAkademik').on('click', '.edit', function() {
                 const d = table.row($(this).closest('tr')).data();
+                if (!d) {
+                    alert('Data tidak ditemukan.');
+                    return;
+                }
                 $('#modalTitle').text('Edit Data Non-Akademik');
                 $('#nama').val(d.nama);
                 $('#jumlah_ekstrakurikuler').val(d.jumlah_ekstrakurikuler);
@@ -228,12 +234,20 @@
                     success: function() {
                         $('#modalNonAkademik').modal('hide');
                         table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message ?? 'Gagal memperbarui data');
                     }
                 });
             });
 
             $('#dataTableNonAkademik').on('click', '.delete', function() {
-                deleteId = table.row($(this).closest('tr')).data().id;
+                const rowData = table.row($(this).closest('tr')).data();
+                if (!rowData) {
+                    alert('Data tidak ditemukan.');
+                    return;
+                }
+                deleteId = rowData.id;
                 $('#modalDelete').modal('show');
             });
 
@@ -245,6 +259,9 @@
                     success: function() {
                         $('#modalDelete').modal('hide');
                         table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message ?? 'Gagal menghapus data');
                     }
                 });
             });

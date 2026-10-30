@@ -15,7 +15,7 @@ class MethodController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'accuracy' => 'required|numeric',
+            'accuracy' => 'required|numeric|min:0|max:100',
         ]);
         $method = Method::create([
             'accuracy' => $request->accuracy,
@@ -38,7 +38,7 @@ class MethodController extends Controller
             return response()->json(['message' => 'Data not found'], 404);
         }
         $request->validate([
-            'accuracy' => 'required|numeric',
+            'accuracy' => 'required|numeric|min:0|max:100',
         ]);
         $method->update([
             'accuracy' => $request->accuracy,

@@ -48,11 +48,11 @@ class SiswaController extends Controller
 
     public function inputSiswa(Request $request)
     {
+        $request->validate([
+            'nama_siswa' => 'required|string|max:255',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
         try {
-            $request->validate([
-                'nama_siswa' => 'required|string|max:255',
-                'kelas_id' => 'required|exists:kelas,id',
-            ]);
             DB::beginTransaction();
             $siswa = Siswa::create([
                 'nama_siswa' => $request->nama_siswa,
@@ -77,7 +77,14 @@ class SiswaController extends Controller
     {
         try {
             DB::beginTransaction();
-            $siswa = Siswa::findOrFail($id);
+            $siswa = Siswa::find($id);
+            if (!$siswa) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data siswa tidak ditemukan',
+                ], 404);
+            }
             $siswa->delete();
             DB::commit();
             return response()->json([
@@ -95,13 +102,20 @@ class SiswaController extends Controller
 
     public function updateSiswa(Request $request, $id)
     {
+        $request->validate([
+            'nama_siswa' => 'required|string|max:255',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
         try {
-            $request->validate([
-                'nama_siswa' => 'required|string|max:255',
-                'kelas_id' => 'required|exists:kelas,id',
-            ]);
             DB::beginTransaction();
-            $siswa = Siswa::findOrFail($id);
+            $siswa = Siswa::find($id);
+            if (!$siswa) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data siswa tidak ditemukan',
+                ], 404);
+            }
             $siswa->update([
                 'nama_siswa' => $request->nama_siswa,
                 'kelas_id' => $request->kelas_id,

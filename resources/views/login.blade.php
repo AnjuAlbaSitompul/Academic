@@ -6,7 +6,8 @@
         <div class="">
             <div class="container-login100">
                 <div class="wrap-login100 p-6">
-                    <form class="login100-form validate-form" id="loginForm">
+                    <form class="login100-form validate-form" id="loginForm" method="POST" action="/login">
+                        @csrf
                         <span class="login100-form-title pb-5">
                             Aplikasi Predikisi Prestasi Akademik Siswa
                         </span>
@@ -59,14 +60,30 @@
                 url: '/login',
                 type: 'POST',
                 data: $(this).serialize(),
+                dataType: 'json',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 },
                 success: function(response) {
-                    window.location.href = '/dashboard';
+                    window.location.href = response.redirect || '/dashboard';
                 },
                 error: function(xhr) {
-                    alert('Login failed: ' + xhr.responseJSON.message);
+                    if (xhr.status === 419) {
+                        alert('Sesi kedaluwarsa (CSRF mismatch). Silakan refresh halaman lalu coba login lagi.');
+                        location.reload();
+                        return;
+                    }
+
+                    var message = 'Login gagal. Silakan coba lagi.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = xhr.responseJSON.errors;
+                        message = Object.values(errors).flat().join('\n');
+                    }
+                    alert(message);
                 }
             });
         });

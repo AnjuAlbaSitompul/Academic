@@ -48,11 +48,11 @@ class GuruController extends Controller
 
     public function inputGuru(Request $request)
     {
+        $request->validate([
+            'nama_guru' => 'required|string|max:255',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
         try {
-            $request->validate([
-                'nama_guru' => 'required|string|max:255',
-                'kelas_id' => 'required|exists:kelas,id',
-            ]);
             DB::beginTransaction();
             $guru = Guru::create([
                 'nama_guru' => $request->nama_guru,
@@ -77,7 +77,14 @@ class GuruController extends Controller
     {
         try {
             DB::beginTransaction();
-            $guru = Guru::findOrFail($id);
+            $guru = Guru::find($id);
+            if (!$guru) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data guru tidak ditemukan',
+                ], 404);
+            }
             $guru->delete();
             DB::commit();
             return response()->json([
@@ -95,13 +102,20 @@ class GuruController extends Controller
 
     public function updateGuru(Request $request, $id)
     {
+        $request->validate([
+            'nama_guru' => 'required|string|max:255',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
         try {
-            $request->validate([
-                'nama_guru' => 'required|string|max:255',
-                'kelas_id' => 'required|exists:kelas,id',
-            ]);
             DB::beginTransaction();
-            $guru = Guru::findOrFail($id);
+            $guru = Guru::find($id);
+            if (!$guru) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data guru tidak ditemukan',
+                ], 404);
+            }
             $guru->update([
                 'nama_guru' => $request->nama_guru,
                 'kelas_id' => $request->kelas_id,

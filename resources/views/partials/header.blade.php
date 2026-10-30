@@ -382,7 +382,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="dropdown-divider m-0"></div>
-                                                <a class="dropdown-item" href="/" id="signOut">
+                                                <a class="dropdown-item" href="/logout" id="signOut">
                                                     <i class="dropdown-icon fe fe-alert-circle"></i> Sign out
                                                 </a>
                                             </div>
@@ -403,13 +403,18 @@
                         url: '/logout',
                         type: 'GET',
                         headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'Accept': 'application/json'
                         },
                         success: function(response) {
                             window.location.href = '/login';
                         },
                         error: function(xhr) {
-                            alert('Logout failed: ' + xhr.responseJSON.message);
+                            if (xhr.status === 401) {
+                                window.location.href = '/login';
+                                return;
+                            }
+                            alert('Logout failed: ' + (xhr.responseJSON?.message ?? 'Terjadi kesalahan.'));
                         }
                     });
                 });

@@ -138,6 +138,16 @@
                             <div class="col-md-3 mb-3">
                                 <label>Keterlambatan</label>
                                 <input type="number" class="form-control" id="keterlambatan" required>
+                                <div class="invalid-feedback">Wajib diisi</div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label>Prestasi</label>
+                                <select class="form-control" id="prestasi" required>
+                                    <option value="">-- Pilih --</option>
+                                    <option value="YA">YA</option>
+                                    <option value="TIDAK">TIDAK</option>
+                                </select>
+                                <div class="invalid-feedback">Wajib diisi</div>
                             </div>
                         </div>
                     </form>
@@ -240,6 +250,10 @@
             });
             $('#dataTableSiswa').on('click', '.luluskan', function() {
                 const d = tableSiswa.row($(this).closest('tr')).data();
+                if (!d) {
+                    alert('Data siswa tidak ditemukan.');
+                    return;
+                }
                 $('#modalTitle').text('Input Nilai');
                 $('#formNilai')[0].reset();
                 $('#nama').val(d.nama_siswa);
@@ -285,6 +299,11 @@
                         keterlambatan: $('#keterlambatan').val()
                     };
                     const prestasi = predictPrestasi(dataTrain, dataBaru);
+                    if (!prestasi) {
+                        alert('Gagal memprediksi prestasi: data training kosong.');
+                        return;
+                    }
+                    $('#prestasi').val(prestasi);
                     $.post('/nilai-siswa', {
                         _token: '{{ csrf_token() }}',
                         siswa_id: $('#btnInsert').data('id'),
@@ -299,11 +318,19 @@
                         $('#modalNilai').modal('hide');
                         tableNilai.ajax.reload();
                         tableSiswa.ajax.reload();
+                    }).fail(function(xhr) {
+                        alert(xhr.responseJSON?.message ?? 'Gagal menyimpan nilai');
                     });
+                }).fail(function() {
+                    alert('Gagal mengambil data training untuk prediksi.');
                 });
             });
             $('#dataTableNilai').on('click', '.edit', function() {
                 const d = tableNilai.row($(this).closest('tr')).data();
+                if (!d) {
+                    alert('Data nilai tidak ditemukan.');
+                    return;
+                }
                 $('#modalTitle').text('Edit Nilai');
                 $('#nama').val(d.nama);
                 $('#nilai_uas').val(d.nilai_uas);
@@ -320,6 +347,10 @@
             });
             $('#btnUpdate').click(function() {
                 if (!validate()) return;
+                if (!$('#prestasi').val()) {
+                    alert('Prestasi wajib dipilih.');
+                    return;
+                }
                 $.ajax({
                     url: '/nilai-siswa/' + $(this).data('id'),
                     method: 'PUT',
@@ -330,11 +361,15 @@
                         nilai_uts: $('#nilai_uts').val(),
                         nilai_un: $('#nilai_un').val(),
                         kehadiran: $('#kehadiran').val(),
-                        keterlambatan: $('#keterlambatan').val()
+                        keterlambatan: $('#keterlambatan').val(),
+                        prestasi: $('#prestasi').val()
                     },
                     success: function() {
                         $('#modalNilai').modal('hide');
                         tableNilai.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message ?? 'Gagal memperbarui nilai');
                     }
                 });
             });
@@ -352,6 +387,9 @@
                     success: function() {
                         $('#modalDelete').modal('hide');
                         tableNilai.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message ?? 'Gagal menghapus nilai');
                     }
                 });
             });

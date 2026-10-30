@@ -72,7 +72,10 @@
                 ajax: {
                     url: '/kelas/data',
                     type: 'GET',
-                    datasrc: function(json) {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    dataSrc: function(json) {
                         return json.data;
                     }
                 },
@@ -114,14 +117,15 @@
                     url: '/kelas/' + kelasId,
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
                         showModal(true, 'Kelas berhasil dihapus.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menghapus kelas.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menghapus kelas.');
                     }
                 });
 
@@ -130,7 +134,12 @@
             // on Edit Kelas
             $('#dataTable1').on('click', '#editKelas', function() {
                 let kelasId = $(this).data('id');
-                let nama = table.row($(this).parents('tr')).data().nama_kelas
+                let rowData = table.row($(this).parents('tr')).data();
+                if (!rowData) {
+                    showModal(false, 'Data kelas tidak ditemukan.');
+                    return;
+                }
+                let nama = rowData.nama_kelas
                 $('#inputName').val(nama);
                 $('#updateKelas').data('id', kelasId);
                 $('#updateKelas').fadeIn();
@@ -150,7 +159,8 @@
                         nama_kelas: namaKelas,
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -160,7 +170,7 @@
                         showModal(true, 'Kelas berhasil diperbarui.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat memperbarui kelas.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat memperbarui kelas.');
                     }
                 });
             });
@@ -178,7 +188,8 @@
                         nama_kelas: namaKelas,
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -186,7 +197,7 @@
                         showModal(true, 'Kelas berhasil disimpan.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menyimpan kelas.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menyimpan kelas.');
                     }
                 });
             });

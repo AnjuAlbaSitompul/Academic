@@ -3,7 +3,7 @@
     <div class="col-md-12 col-xl-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Daftar Kelas</h4>
+                <h4 class="card-title">Daftar Guru</h4>
             </div>
             <div class="card-body">
                 <form class="form-horizontal" name="formGuru">
@@ -89,7 +89,10 @@
                 ajax: {
                     url: '/guru/data' + (id ? '/' + id : ''),
                     type: 'GET',
-                    datasrc: function(json) {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    dataSrc: function(json) {
                         let data = [];
                         if (json.status === 'success') {
                             data = json.data;
@@ -138,8 +141,13 @@
             // on Edit Guru
             $('#dataTableGuru').on('click', '#editGuru', function() {
                 let GuruId = $(this).data('id');
-                let nama = table.row($(this).parents('tr')).data().nama_guru
-                let idKelas = table.row($(this).parents('tr')).data().kelas_id
+                let rowData = table.row($(this).parents('tr')).data();
+                if (!rowData) {
+                    showModal(false, 'Data guru tidak ditemukan.');
+                    return;
+                }
+                let nama = rowData.nama_guru
+                let idKelas = rowData.kelas_id
                 $('#namaGuru').val(nama);
                 $('#updateGuru').data('id', GuruId);
                 $('#updateGuru').fadeIn();
@@ -162,7 +170,8 @@
                         kelas_id: kelasId
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -173,7 +182,7 @@
                         showModal(true, 'Guru berhasil diperbarui.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat memperbarui Guru.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat memperbarui Guru.');
                     }
                 });
             });
@@ -185,14 +194,15 @@
                     url: '/guru/' + GuruId,
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
                         showModal(true, 'Guru berhasil dihapus.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menghapus Guru.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menghapus Guru.');
                     }
                 });
             });
@@ -211,7 +221,8 @@
                         kelas_id: kelasId
                     },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     success: function(response) {
                         table.ajax.reload();
@@ -220,7 +231,7 @@
                         showModal(true, 'Guru berhasil disimpan.');
                     },
                     error: function(xhr) {
-                        showModal(false, 'Terjadi kesalahan saat menyimpan guru.');
+                        showModal(false, xhr.responseJSON?.message ?? 'Terjadi kesalahan saat menyimpan guru.');
                     }
                 });
             });

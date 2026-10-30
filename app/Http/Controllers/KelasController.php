@@ -10,10 +10,10 @@ class KelasController extends Controller
 {
     public function inputKelas(Request $request)
     {
+        $request->validate([
+            'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas',
+        ]);
         try {
-            $request->validate([
-                'nama_kelas' => 'required|string|max:255',
-            ]);
             DB::beginTransaction();
             $response = Kelas::create([
                 'nama_kelas' => $request->nama_kelas,
@@ -54,7 +54,21 @@ class KelasController extends Controller
     {
         try {
             DB::beginTransaction();
-            $kelas = Kelas::findOrFail($id);
+            $kelas = Kelas::find($id);
+            if (!$kelas) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data kelas tidak ditemukan',
+                ], 404);
+            }
+            if ($kelas->siswas()->exists() || $kelas->gurus()->exists()) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kelas tidak dapat dihapus karena masih memiliki data siswa atau guru',
+                ], 422);
+            }
             $kelas->delete();
             DB::commit();
             return response()->json([
@@ -72,12 +86,19 @@ class KelasController extends Controller
 
     public function updateKelas(Request $request, $id)
     {
+        $request->validate([
+            'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas,' . $id,
+        ]);
         try {
-            $request->validate([
-                'nama_kelas' => 'required|string|max:255',
-            ]);
             DB::beginTransaction();
-            $kelas = Kelas::findOrFail($id);
+            $kelas = Kelas::find($id);
+            if (!$kelas) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data kelas tidak ditemukan',
+                ], 404);
+            }
             $kelas->nama_kelas = $request->nama_kelas;
             $kelas->save();
             DB::commit();
